@@ -23,7 +23,7 @@ The user will also be able to add the following items to their inventory:
 - Magic Carpets
 - Magic Axes
 
-##Update (03/20/21):
+## Update (03/20/21):
 
 - added a listener to read file and print existing values to the correlating fields per character.
 - When the character changes, the fields changes as well
