@@ -93,7 +93,7 @@ public class Controller implements Initializable {
         characterList.setItems(characters);
 
         // listen for changes to the fruit combo box selection and update the displayed fruit image accordingly.
-        characterList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (selected, name, newFruit) -> {
+        characterList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (selected, old, name) -> {
             if (!filePath.equals("")) {
                 try {
                     readValues();

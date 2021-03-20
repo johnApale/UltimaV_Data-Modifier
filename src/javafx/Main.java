@@ -17,6 +17,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Ultima Data Changer");
         primaryStage.setScene(gui);
+        primaryStage.setResizable(false);
         primaryStage.show();
 
 
