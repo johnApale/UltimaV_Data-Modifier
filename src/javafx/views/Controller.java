@@ -1,5 +1,7 @@
 package javafx.views;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -89,11 +91,23 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         characterList.setValue("Main");
         characterList.setItems(characters);
-        resetValues();
+
+        // listen for changes to the fruit combo box selection and update the displayed fruit image accordingly.
+        characterList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (selected, name, newFruit) -> {
+            if (!filePath.equals("")) {
+                try {
+                    readValues();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Error");
+            }
+        });
     }
 
     @FXML
-    private void selectFile(ActionEvent event){
+    private void selectFile(ActionEvent event) throws IOException {
 
         FileChooser file = new FileChooser();
         file.setTitle("Open SAVED.GAM File");
@@ -101,11 +115,22 @@ public class Controller implements Initializable {
 
         if(selected != null) {
             filePath = selected.getAbsolutePath();
+            if(filePath.endsWith(".GAM")){
+                filePathField.setText(filePath);
+                readValues();
+
+            } else {
+                // Show error message
+                String errorMsg = "Invalid file type. Please select .GAM file.";
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText(errorMsg);
+                alert.showAndWait();
+            }
         } else {
             System.out.println("No file selected.");
         }
-
-        filePathField.setText(filePath);
     }
 
     @FXML
@@ -199,6 +224,18 @@ public class Controller implements Initializable {
         resetValues();
     }
 
+    @FXML
+    private void listClicked(MouseEvent event) {
+        if(filePath.equals("")){
+            String errorMsg = "Please select file.";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(errorMsg);
+            alert.showAndWait();
+        }
+    }
+
     //Modify text fields to only accept numbers
     @FXML
     private void strNumOnly(KeyEvent event){
@@ -263,6 +300,114 @@ public class Controller implements Initializable {
     @FXML
     private void axesNumOnly(KeyEvent event){
         numOnly(axesField);
+    }
+
+
+    public void readValues() throws IOException {
+        String name = (String)characterList.getValue();
+
+
+        RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
+
+
+        // initial position for character attributes
+        // need to increment xCharacter position
+        int strPos = 14;
+        int intelPos = 16;
+        int dexPos = 15;
+        int hpPos = 18;
+        int maxHPPos = 20;
+        int expPos = 22;
+
+        // character position in arraylist
+        int pos = (characters.indexOf(name)) * 32;
+
+        // fixed position of other attributes
+        int goldPos = 516;
+        int keysPos = 518;
+        int skullPos = 523;
+        int gemsPos = 519;
+        int badgePos = 536;
+        int carpetPos = 522;
+        int axesPos = 576;
+
+
+        raf.seek(pos + strPos);
+        int strength = raf.readByte();
+        strengthField.setText(String.valueOf(strength));
+
+
+        raf.seek(intelPos + pos);
+        int intel = raf.readByte();
+        intelliField.setText(String.valueOf(intel));
+
+        // change dex
+        raf.seek(dexPos + pos);
+        int dex = raf.readByte();
+        dexField.setText(String.valueOf(dex));
+
+        // change currentHP
+        raf.seek(hpPos + pos);
+        int a = raf.readByte() & 0xFF;
+        int b = raf.readByte() & 0xFF;
+        int hp = (b << 8) | a;
+        hpField.setText(String.valueOf(hp));
+
+        // change maxHP
+        raf.seek(maxHPPos + pos);
+        a = raf.readByte() & 0xFF;
+        b = raf.readByte() & 0xFF;
+        int maxHP = (b << 8) | a;
+        maxHPField.setText(String.valueOf(maxHP));
+
+        // change expPoints
+        raf.seek(expPos + pos);
+        a = raf.readByte() & 0xFF;
+        b = raf.readByte() & 0xFF;
+        int exp = (b << 8) | a;
+        expField.setText(String.valueOf(exp));
+
+        // modify global values
+        // change gold
+        raf.seek(goldPos);
+        a = raf.readByte() & 0xFF;
+        b = raf.readByte() & 0xFF;
+        int gold = (b << 8) | a;
+        goldField.setText(String.valueOf(gold));
+
+        // change keys
+        raf.seek(keysPos);
+        int keys = raf.readByte();
+        keysField.setText(String.valueOf(keys));
+
+        // change skull
+        raf.seek(skullPos);
+        int skull = raf.readByte();
+        skullField.setText(String.valueOf(skull));
+
+        // change gems
+        raf.seek(gemsPos);
+        int gems = raf.readByte();
+        gemsField.setText(String.valueOf(gems));
+
+        // change black badge
+        raf.seek(badgePos);
+        int badge = raf.readByte();
+        badgeField.setText(String.valueOf(badge));
+
+        // change magic carpets
+        raf.seek(carpetPos);
+        int carpet = raf.readByte();
+        carpetsField.setText(String.valueOf(carpet));
+
+        // change magic axes
+        raf.seek(axesPos);
+        int axes = raf.readByte();
+        axesField.setText(String.valueOf(axes));
+
+        // close file
+        raf.close();
+
     }
 
     // function modifies the .GAM file hex
@@ -330,7 +475,7 @@ public class Controller implements Initializable {
         // change maxHP
         byte[] maxHPByte = intTo2Byte(maxhp);
         raf.seek(maxHPPos + pos);
-        raf.write(hpByte);
+        raf.write(maxHPByte);
 
         // change expPoints
         byte[] expBytes = intTo2Byte(exp);
@@ -378,6 +523,9 @@ public class Controller implements Initializable {
         byte[] bytes = signature.getBytes();
         raf.seek(864);
         raf.write(bytes);
+
+        // close file
+        raf.close();
 
     }
 
@@ -485,4 +633,5 @@ public class Controller implements Initializable {
             }
         });
     }
+
 }

@@ -4,6 +4,10 @@ public class Avatar {
     String name;
     int strength, intelli, dex, hp, skull, gold, exp, keys, maxhp, gems, badge, carpets, axes;
 
+    public Avatar(String name){
+        this.name = name;
+    }
+
     public Avatar(String name, int str, int intelli, int dex, int hp, int skull, int gold, int exp,
                   int keys, int maxhp, int gems, int badge, int carpets, int axes){
         this.name = name;
