@@ -22,3 +22,13 @@ The user will also be able to add the following items to their inventory:
 - Black Badge
 - Magic Carpets
 - Magic Axes
+
+##Update (03/20/21):
+
+- added a listener to read file and print existing values to the correlating fields per character.
+- When the character changes, the fields changes as well
+- added catches to prevent user from selecting files other than .GAM files
+- requires user to select file before selecting character
+- modified the GUI to separate inventory and attributes
+- used grids instead of free placement, for cleaner look
+- restricted resizability of window
